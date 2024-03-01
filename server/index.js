@@ -13,14 +13,19 @@ app.use(express.json()); //req.body
 
 //create a todo
 
-app.post("/todos", async (req, res) => {
+app.post("/JobApplication", async (req, res) => {
   try {
-    const { description } = req.body;
-    const newTodo = await pool.query(
-      "INSERT INTO todo (description) VALUES($1) RETURNING * ",
-      [description]
+    const company_name = req.body.company_name;
+    const application_status = req.body.application_status;
+    const application_date = req.body.application_date;
+    const role_description = req.body.role_description;
+
+    const newJobApplication = await pool.query(
+      "INSERT INTO JobApplication (company_name, application_status, application_date, role_description) VALUES($1, $2, $3, $4) RETURNING * ",
+      [company_name, application_status, application_date, role_description]
     );
-    res.json(newTodo.rows);
+
+    res.json(newJobApplication.rows);
   } catch (error) {
     console.log(error.message);
   }
@@ -28,10 +33,10 @@ app.post("/todos", async (req, res) => {
 
 //get all todos
 
-app.get("/todos", async (req, res) => {
+app.get("/JobApplication", async (req, res) => {
   try {
-    const allTodos = await pool.query("SELECT * FROM JobApplication");
-    res.json(allTodos.rows);
+    const allApplied = await pool.query("SELECT * FROM jobapplication");
+    res.json(allApplied.rows);
   } catch (error) {
     console.log(error.message);
   }
@@ -39,13 +44,14 @@ app.get("/todos", async (req, res) => {
 
 //get a todo
 
-app.get("/todos/:id", async (req, res) => {
+app.get("/JobApplication/:application_id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const todo = await pool.query("SELECT * FROM todo WHERE todo_id = $1", [
-      id,
-    ]);
-    res.json(todo.rows[0]);
+    const { application_id } = req.params;
+    const jobApp = await pool.query(
+      "SELECT * FROM jobapplication WHERE application_id = $1",
+      [application_id]
+    );
+    res.json(jobApp.rows[0]);
   } catch (error) {
     console.log(error.message);
   }
@@ -53,13 +59,22 @@ app.get("/todos/:id", async (req, res) => {
 
 //update a todo
 
-app.put("/todos/:id", async (req, res) => {
+app.put("/JobApplication/:application_id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const { description } = req.body;
-    const updateTodo = await pool.query(
-      "UPDATE todo SET description = $1 WHERE todo_id = $2",
-      [description, id]
+    const { application_id } = req.params;
+    const company_name = req.body.company_name;
+    const application_status = req.body.application_status;
+    const application_date = req.body.application_date;
+    const role_description = req.body.role_description;
+    const updateJobApplication = await pool.query(
+      "UPDATE jobApplication SET company_name = $1, application_status = $2, application_date = $3, role_description = $4 WHERE application_id = $5",
+      [
+        company_name,
+        application_status,
+        application_date,
+        role_description,
+        application_id,
+      ]
     );
     res.json("Todo was updated!");
   } catch (error) {
@@ -69,12 +84,13 @@ app.put("/todos/:id", async (req, res) => {
 
 //delete a todo
 
-app.delete("/todos/:id", async (req, res) => {
+app.delete("/JobApplication/:application_id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const deleteTodo = await pool.query("DELETE FROM todo WHERE todo_id = $1", [
-      id,
-    ]);
+    const { application_id } = req.params;
+    const deleteTodo = await pool.query(
+      "DELETE FROM jobApplication WHERE application_id = $1",
+      [application_id]
+    );
     res.json("Todo was deleted!");
   } catch (error) {
     console.log(error.message);
