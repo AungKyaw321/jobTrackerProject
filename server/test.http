@@ -1,0 +1,30 @@
+POST http://localhost:5001/auth/register
+Content-Type: application/json
+
+{
+    "email" : "mwin@ucsd.edu",
+    "firstname" : "Myo",
+    "middlename" : "Zaw",
+    "lastname" : "Win",
+    "password" : "testpassword"
+}
+
+###
+
+POST http://localhost:5001/auth/login
+Content-Type: application/json
+
+{
+    "email" : "mwin@ucsd.edu",
+    "password" : "testpassword"
+}
+
+###
+
+POST http://localhost:5001/auth/login
+Content-Type: application/json
+
+{
+    "email" : "mwiafdsn@ucsd.edu",
+    "password" : "wrongpassword"
+}

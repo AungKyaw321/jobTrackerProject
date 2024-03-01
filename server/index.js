@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const pool = require("./db");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 //middleware
 app.use(cors());
@@ -28,7 +30,7 @@ app.post("/todos", async (req, res) => {
 
 app.get("/todos", async (req, res) => {
   try {
-    const allTodos = await pool.query("SELECT * FROM todo");
+    const allTodos = await pool.query("SELECT * FROM JobApplication");
     res.json(allTodos.rows);
   } catch (error) {
     console.log(error.message);
@@ -79,6 +81,70 @@ app.delete("/todos/:id", async (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("Server has started on port 5000");
+const saltRounds = 10;
+
+app.post("/auth/register", async (req, res) => {
+  try {
+    const { email, firstname, middlename, lastname, password } = req.body;
+    await bcrypt.hash(password, saltRounds, async function (err, hash) {
+      console.log(`Email: ${email}, Firstname: ${firstname}, Middlename: ${middlename}, lastname: ${lastname}, Hash: ${hash}`);
+      try {
+        const registerUser = await pool.query("INSERT INTO AppUser (first_name, middle_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5)", [firstname, middlename, lastname, email, hash]);
+        res.status(201).send({ message: "User Created Successfully" })
+      } catch (error) {
+        res.status(500).send({
+          message: "Error Creating User",
+          error,
+        });
+      }
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
 });
+
+app.post("/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const passwordQuery = await pool.query("SELECT user_id, password FROM AppUser WHERE email = $1", [email]);
+    if (passwordQuery.rowCount == 0) {
+      return res.status(400).send({
+        message: "Account does not exist"
+      });
+    }
+    const user_id = passwordQuery.rows[0].userId;
+    const hashPassword = passwordQuery.rows[0].password;
+    await bcrypt.compare(password, hashPassword, function (err, result) {
+      if (!result) {
+        return res.status(400).send({
+          message: "Passwords does not match"
+        });
+      }
+
+      //   create JWT token
+      const token = jwt.sign(
+        {
+          userId: user_id,
+          userEmail: email,
+        },
+        "RANDOM-TOKEN",
+        { expiresIn: "24h" }
+      );
+      //   return success response
+      res.status(200).send({
+        message: "Login Successful",
+        email: email,
+        token,
+      });
+
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
+
+app.listen(5001, () => {
+  console.log("Server has started on port 5001");
+});
+
