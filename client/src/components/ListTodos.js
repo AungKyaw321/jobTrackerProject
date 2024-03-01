@@ -1,9 +1,16 @@
 import React, { Fragment, useEffect, useState } from "react";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
 import EditTodo from "./EditTodo";
 
 const ListTodos = () => {
-  const [todos, setTodos] = useState([]);
-
+  const [applications, setApplications] = useState([]);
+  /*
   const deleteTodo = async (id) => {
     try {
       const deleteTodo = await fetch(`http://localhost:5000/todos/${id}`, {
@@ -15,43 +22,49 @@ const ListTodos = () => {
       console.error(error.message);
     }
   };
-  const getTodos = async () => {
+  */
+  const getApplications = async () => {
     try {
-      const response = await fetch("http://localhost:5000/todos");
+      const response = await fetch("http://localhost:5000/JobApplication");
       const jsonData = await response.json();
-      setTodos(jsonData);
+      setApplications(jsonData);
     } catch (error) {
       console.error(error.message);
     }
   };
   useEffect(() => {
-    getTodos();
+    getApplications();
   }, []);
 
-  console.log(todos);
   return (
     <Fragment>
-      {" "}
-      <table className="table mt-5 text-center">
-        <thead>
-          <tr>
-            <th>Company</th>
-            <th>Role Description</th>
-            <th>Applied Date</th>
-            <th>Status</th>
-            <th>Edit</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          {/*
-          <tr>
-            <td>John</td>
-            <td>Doe</td>
-            <td>john@example.com</td>
-          </tr>
-          */}
-          {todos.map((todo) => (
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Company</TableCell>
+              <TableCell align="right">Role</TableCell>
+              <TableCell align="right">Status</TableCell>
+              <TableCell align="right">Date</TableCell>
+              <TableCell align="right">Edit</TableCell>
+              <TableCell align="right">Delete</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {applications.map((app) => (
+              <TableRow key={app.application_id}>
+                <TableCell>{app.company_name}</TableCell>
+                <TableCell>{app.role_description}</TableCell>
+                <TableCell>{app.application_status}</TableCell>
+                <TableCell>{app.application_date}</TableCell>
+                <TableCell>Edit</TableCell>
+                <TableCell>Delete</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {/*todos.map((todo) => (
             <tr key={todo.todo_id}>
               <td>{todo.description}</td>
               <td>
@@ -66,9 +79,7 @@ const ListTodos = () => {
                 </button>
               </td>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          ))*/}
     </Fragment>
   );
 };
