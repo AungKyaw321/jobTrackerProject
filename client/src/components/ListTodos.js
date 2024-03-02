@@ -10,19 +10,20 @@ import EditTodo from "./EditTodo";
 
 const ListTodos = () => {
   const [applications, setApplications] = useState([]);
-  /*
-  const deleteTodo = async (id) => {
+  const deleteApp = async (id) => {
     try {
-      const deleteTodo = await fetch(`http://localhost:5000/todos/${id}`, {
-        method: "DELETE",
-      });
+      const deleteApp = await fetch(
+        `http://localhost:5001/JobApplication/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-      setTodos(todos.filter((todo) => todo.todo_id !== id));
+      setApplications(applications.filter((app) => app.application_id !== id));
     } catch (error) {
       console.error(error.message);
     }
   };
-  */
   const getApplications = async () => {
     try {
       const response = await fetch("http://localhost:5001/JobApplication");
@@ -58,7 +59,14 @@ const ListTodos = () => {
                 <TableCell>{app.application_status}</TableCell>
                 <TableCell>{app.application_date}</TableCell>
                 <TableCell>Edit</TableCell>
-                <TableCell>Delete</TableCell>
+                <TableCell>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => deleteApp(app.application_id)}
+                  >
+                    Delete
+                  </button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
