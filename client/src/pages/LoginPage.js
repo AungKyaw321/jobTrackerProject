@@ -3,13 +3,22 @@ import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import Cookies from "universal-cookie";
 import Container from '@mui/material/Container';
 import Register from "../components/Register";
 import Login from "../components/Login";
+import { Navigate } from "react-router-dom";
 
+const cookies = new Cookies();
 
 export default function LoginPage() {
     const [hasAccount, setHasAccount] = useState(true);
+
+    const token = cookies.get("TOKEN");
+    if (token) {
+        return <Navigate to="/" replace={true} />
+    }
+
     const registerAccount = async (email, password, firstname, middlename, lastname) => {
         console.log(`email: ${email} password: ${password} fname: ${firstname} mname: ${middlename} lname: ${lastname}`);
         try {
