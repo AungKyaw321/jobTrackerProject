@@ -25,7 +25,7 @@ const ListTodos = () => {
   */
   const getApplications = async () => {
     try {
-      const response = await fetch("http://localhost:5000/JobApplication");
+      const response = await fetch("http://localhost:5001/JobApplication");
       const jsonData = await response.json();
       setApplications(jsonData);
     } catch (error) {
