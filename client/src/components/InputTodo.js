@@ -57,7 +57,7 @@ const InputTodo = () => {
         <TextField
           style={{ width: "200px", margin: "5px" }}
           type="text"
-          label="status"
+          label="Date"
           variant="outlined"
           value={appliedDate}
           onChange={(e) => setStatus(e.target.value)}
