@@ -1,17 +1,25 @@
 import "./App.css";
 import React, { Fragment } from "react";
 //components
-import ListTodos from "./components/ListTodos";
-import InputTodo from "./components/InputTodo";
+
+import LoginPage from "./pages/LoginPage";
+import { Routes, Route } from "react-router-dom";
+
+import HomePage from "./pages/HomePage";
 
 function App() {
   return (
-    <Fragment>
-      <div className="container">
-        <InputTodo />
-        <ListTodos />
-      </div>
-    </Fragment>
+    <Routes>
+      <Route exact path="/" element={<HomePage />} />
+      <Route exact path="/login" element={<LoginPage />} />
+    </Routes>
+    // <Fragment>
+    //   <LoginPage />
+    //   {/* <div className="container">
+    //     <InputTodo />
+    //     <ListTodos />
+    //   </div> */}
+    // </Fragment>
   );
 }
 
