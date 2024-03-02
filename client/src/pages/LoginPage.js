@@ -8,10 +8,37 @@ import Register from "../components/Register";
 import Login from "../components/Login";
 
 
-
-
 export default function LoginPage() {
     const [hasAccount, setHasAccount] = useState(true);
+    const registerAccount = async (email, password, firstname, middlename, lastname) => {
+        console.log(`email: ${email} password: ${password} fname: ${firstname} mname: ${middlename} lname: ${lastname}`);
+        try {
+            const response = await fetch(
+                `http://localhost:5001/auth/register`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        firstname,
+                        middlename,
+                        lastname,
+                    }),
+                }
+            );
+            const jsonData = await response.json();
+            console.log(jsonData);
+            if (jsonData.success) {
+                console.log("created account");
+                setHasAccount(true);
+            } else {
+                console.log("failed to creat account.");
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
@@ -23,7 +50,7 @@ export default function LoginPage() {
                     alignItems: 'center',
                 }}
             >
-                {hasAccount ? <Login /> : <Register />}
+                {hasAccount ? <Login /> : <Register registerAccount={registerAccount} />}
                 <Grid container>
                     <Grid item>
                         <Button onClick={() => setHasAccount(!hasAccount)}>
