@@ -130,7 +130,8 @@ app.post("/auth/login", async (req, res) => {
         success: false
       });
     }
-    const user_id = passwordQuery.rows[0].userId;
+
+    const user_id = passwordQuery.rows[0].user_id;
     const hashPassword = passwordQuery.rows[0].password;
     await bcrypt.compare(password, hashPassword, function (err, result) {
       if (!result) {
@@ -144,7 +145,7 @@ app.post("/auth/login", async (req, res) => {
       const token = jwt.sign(
         {
           userId: user_id,
-          userEmail: email,
+          userEmail: email
         },
         "RANDOM-TOKEN",
         { expiresIn: "24h" }
@@ -163,6 +164,46 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
+app.get("/JobApplication/:application_id", async (req, res) => {
+  try {
+    const { application_id } = req.params;
+    const jobApp = await pool.query(
+      "SELECT * FROM jobapplication WHERE application_id = $1",
+      [application_id]
+    );
+    res.json(jobApp.rows[0]);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
+app.get("/auth/userInfo", async (req, res) => {
+  try {
+    const token = await req.headers.authorization.split(" ")[1];
+    console.log(token);
+    const decodedToken = await jwt.verify(token, "RANDOM-TOKEN");
+    const user = await decodedToken;
+    const userVerify = await pool.query("SELECT user_id, email, first_name FROM AppUser WHERE user_id = $1 AND email = $2", [user.userId, user.userEmail]);
+    if (userVerify.rowCount == 0) {
+      res.status(400).send({
+        message: "Invalid Token",
+        success: false
+      });
+    } else {
+      res.status(200).send({
+        userId: userVerify.rows[0].user_id,
+        email: userVerify.rows[0].email,
+        firstname: userVerify.rows[0].first_name,
+        success: true
+      });
+    }
+  } catch (error) {
+    res.status(400).send({
+      message: "Invalid Token",
+      success: false
+    });
+  }
+})
 
 app.listen(5001, () => {
   console.log("Server has started on port 5001");

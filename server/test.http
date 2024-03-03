@@ -28,3 +28,7 @@ Content-Type: application/json
     "email" : "mwiafdsn@ucsd.edu",
     "password" : "wrongpassword"
 }
+
+###
+GET http://localhost:5001/auth/userInfo
+Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRW1haWwiOiJtd2luQHVjc2QuZWR1IiwiaWF0IjoxNzA5NDQ5MTA3LCJleHAiOjE3MDk1MzU1MDd9.mlHXN15eGObJeMrWHzn9Tr43mgyiUBMnqMw7M9bc1rg" 

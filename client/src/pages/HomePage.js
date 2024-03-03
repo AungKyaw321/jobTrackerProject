@@ -7,8 +7,8 @@ import { Navigate } from "react-router-dom";
 
 const cookies = new Cookies();
 
-// receives component and any other props represented by ...rest
-export default function HomePage({ element: Element }) {
+
+export default function HomePage({ user }) {
     const token = cookies.get("TOKEN");
     if (!token) {
         return (<Navigate to="/login" replace={true} />)
@@ -20,6 +20,7 @@ export default function HomePage({ element: Element }) {
     }
     return (
         <div className="container">
+            {user.firstname}
             <Button onClick={(e) => logout(e)}>Log Out</Button>
             <InputTodo />
             <ListTodos />
