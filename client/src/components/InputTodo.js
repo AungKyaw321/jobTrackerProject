@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from "react";
 import { FormControl, TextField } from "@mui/material";
-const InputTodo = () => {
+const InputTodo = ({ token }) => {
   const [job, setJob] = useState("");
   const [description, setDescription] = useState("");
   const [appliedDate, setAppliedDate] = useState("");
@@ -11,7 +11,7 @@ const InputTodo = () => {
     try {
       const response = await fetch("http://localhost:5001/JobApplication", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({
           company_name: job,
           application_status: status,

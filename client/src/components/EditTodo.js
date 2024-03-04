@@ -13,7 +13,7 @@ const EditTodo = ({ todo }) => {
         `http://localhost:5000/todos/${todo.todo_id}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify(body),
         }
       );

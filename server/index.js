@@ -4,6 +4,7 @@ const cors = require("cors");
 const pool = require("./db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const auth = require("./auth");
 
 //middleware
 app.use(cors());
@@ -11,45 +12,47 @@ app.use(express.json()); //req.body
 
 //Routes//
 
-//create a todo
-
-app.post("/JobApplication", async (req, res) => {
-  try {
-    const company_name = req.body.company_name;
-    const application_status = req.body.application_status;
-    const application_date = req.body.application_date;
-    const role_description = req.body.role_description;
-
-    const newJobApplication = await pool.query(
-      "INSERT INTO JobApplication (company_name, application_status, application_date, role_description) VALUES($1, $2, $3, $4) RETURNING * ",
-      [company_name, application_status, application_date, role_description]
-    );
-
-    res.json(newJobApplication.rows);
-  } catch (error) {
-    console.log(error.message);
-  }
-});
-
 //get all todos
-
-app.get("/JobApplication", async (req, res) => {
+app.get("/JobApplication", auth, async (req, res) => {
   try {
-    const allApplied = await pool.query("SELECT * FROM jobapplication");
+    const userId = req.user.userId;
+    const allApplied = await pool.query("SELECT * FROM jobapplication WHERE user_id = $1", [userId]);
     res.json(allApplied.rows);
   } catch (error) {
     console.log(error.message);
   }
 });
 
+//create a todo
+app.post("/JobApplication", auth, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const company_name = req.body.company_name;
+    const application_status = req.body.application_status;
+    const application_date = req.body.application_date == "" ? null : req.body.application_date;
+
+    const role_description = req.body.role_description;
+
+    const newJobApplication = await pool.query(
+      "INSERT INTO JobApplication (user_id, company_name, application_status, application_date, role_description) VALUES($1, $2, $3, $4, $5) RETURNING * ",
+      [userId, company_name, application_status, application_date, role_description]
+    );
+
+    res.json(newJobApplication.rows);
+  } catch (error) {
+    console.error(error.message);
+  }
+});
+
 //get a todo
 
-app.get("/JobApplication/:application_id", async (req, res) => {
+app.get("/JobApplication/:application_id", auth, async (req, res) => {
   try {
+    const userId = req.user.userId;
     const { application_id } = req.params;
     const jobApp = await pool.query(
-      "SELECT * FROM jobapplication WHERE application_id = $1",
-      [application_id]
+      "SELECT * FROM jobapplication WHERE application_id = $1 AND user_id = $2",
+      [application_id, userId]
     );
     res.json(jobApp.rows[0]);
   } catch (error) {
@@ -58,8 +61,7 @@ app.get("/JobApplication/:application_id", async (req, res) => {
 });
 
 //update a todo
-
-app.put("/JobApplication/:application_id", async (req, res) => {
+app.put("/JobApplication/:application_id", auth, async (req, res) => {
   try {
     const { application_id } = req.params;
     const company_name = req.body.company_name;
@@ -83,8 +85,7 @@ app.put("/JobApplication/:application_id", async (req, res) => {
 });
 
 //delete a todo
-
-app.delete("/JobApplication/:application_id", async (req, res) => {
+app.delete("/JobApplication/:application_id", auth, async (req, res) => {
   try {
     const { application_id } = req.params;
     const deleteTodo = await pool.query(
@@ -164,25 +165,9 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
-app.get("/JobApplication/:application_id", async (req, res) => {
+app.get("/auth/userInfo", auth, async (req, res) => {
   try {
-    const { application_id } = req.params;
-    const jobApp = await pool.query(
-      "SELECT * FROM jobapplication WHERE application_id = $1",
-      [application_id]
-    );
-    res.json(jobApp.rows[0]);
-  } catch (error) {
-    console.log(error.message);
-  }
-});
-
-app.get("/auth/userInfo", async (req, res) => {
-  try {
-    const token = await req.headers.authorization.split(" ")[1];
-    console.log(token);
-    const decodedToken = await jwt.verify(token, "RANDOM-TOKEN");
-    const user = await decodedToken;
+    const user = req.user;
     const userVerify = await pool.query("SELECT user_id, email, first_name FROM AppUser WHERE user_id = $1 AND email = $2", [user.userId, user.userEmail]);
     if (userVerify.rowCount == 0) {
       res.status(400).send({

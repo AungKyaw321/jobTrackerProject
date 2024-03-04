@@ -8,14 +8,14 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import EditTodo from "./EditTodo";
 
-const ListTodos = () => {
+const ListTodos = ({ token }) => {
   const [applications, setApplications] = useState([]);
   const deleteApp = async (id) => {
     try {
       const deleteApp = await fetch(
         `http://localhost:5001/JobApplication/${id}`,
         {
-          method: "DELETE",
+          method: "DELETE", headers: { "Authorization": `Bearer ${token}` },
         }
       );
 
@@ -26,7 +26,9 @@ const ListTodos = () => {
   };
   const getApplications = async () => {
     try {
-      const response = await fetch("http://localhost:5001/JobApplication");
+      const response = await fetch("http://localhost:5001/JobApplication", {
+        method: "GET", headers: { "Authorization": `Bearer ${token}` },
+      });
       const jsonData = await response.json();
       setApplications(jsonData);
     } catch (error) {

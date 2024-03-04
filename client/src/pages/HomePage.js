@@ -7,7 +7,6 @@ import { Navigate } from "react-router-dom";
 
 const cookies = new Cookies();
 
-
 export default function HomePage({ user }) {
     const token = cookies.get("TOKEN");
     if (!token) {
@@ -22,8 +21,8 @@ export default function HomePage({ user }) {
         <div className="container">
             {user.firstname}
             <Button onClick={(e) => logout(e)}>Log Out</Button>
-            <InputTodo />
-            <ListTodos />
+            <InputTodo token={token} />
+            <ListTodos token={token} />
         </div>
     );
 }
